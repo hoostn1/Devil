@@ -65,6 +65,8 @@ var total_rooms_cleared: int = 0
 var shards: int = 50
 var game_state: String = "title"
 
+var loot_system
+
 var death_count: int = 0
 
 func _ready():

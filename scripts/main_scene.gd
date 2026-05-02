@@ -55,7 +55,7 @@ func _input(event: InputEvent) -> void:
 			KEY_F: _use_potion(0)
 			KEY_G: _use_potion(1)
 			KEY_K: skill_ui.call("toggle_skill_ui")
-			KEY_I: pass
+			KEY_I: InventoryUI.call("toggle_inventory")
 
 func _configure_tile_map() -> void:
 	tile_map.tile_size = Vector2i(int(TILE_SIZE), int(TILE_SIZE))

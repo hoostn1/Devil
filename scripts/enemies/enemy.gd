@@ -61,6 +61,12 @@ func die() -> void:
 	var xp_drop = 10 * level
 	GameManager.gain_xp(xp_drop)
 	
+	if randf() < 0.15:
+		var LootSystem = preload("res://scripts/loot_system.gd")
+		var loot = LootSystem.LootSystem.new().roll_drop(level)
+		if loot:
+			InventoryUI.call("add_item", loot)
+	
 	queue_free()
 
 func on_player_detected(player: Node2D) -> void:
