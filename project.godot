@@ -9,7 +9,7 @@ config_version=5
 
 config/name="Devil"
 config/description="Action-RPG - Le Mage contre Devil"
-run/main_scene="res://scenes/main.tscn"
+run/main_scene="res://scenes/hub.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 

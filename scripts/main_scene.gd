@@ -29,7 +29,10 @@ func _ready() -> void:
 	GameManager._check_skill_unlocks()
 	GameManager.game_state = "playing"
 	_configure_tile_map()
-	_generate_room()
+	if current_room_index >= 4:
+		_generate_boss_room()
+	else:
+		_generate_room()
 	_spawn_player()
 	update_hud()
 
@@ -56,6 +59,8 @@ func _input(event: InputEvent) -> void:
 			KEY_G: _use_potion(1)
 			KEY_K: skill_ui.call("toggle_skill_ui")
 			KEY_I: InventoryUI.call("toggle_inventory")
+			KEY_T: _use_portal()
+			KEY_ENTER: _go_to_hub()
 
 func _configure_tile_map() -> void:
 	tile_map.tile_size = Vector2i(int(TILE_SIZE), int(TILE_SIZE))
@@ -89,6 +94,12 @@ func _move_to_position(target: Vector2) -> void:
 	player_node.is_moving = true
 
 func _spawn_enemies() -> void:
+	if current_room_index >= 4:
+		_spawn_boss()
+	else:
+		_spawn_regular_enemies()
+
+func _spawn_regular_enemies() -> void:
 	var num_enemies = rng.randi_range(2, 5)
 	for i in range(num_enemies):
 		var enemy = CharacterBody2D.new()
@@ -237,11 +248,73 @@ func _on_respawn_pressed() -> void:
 	GameManager.player_stats["health"] = GameManager.player_stats["health_max"]
 	GameManager.player_stats["mana"] = GameManager.player_stats["mana_max"]
 	GameManager.game_state = "playing"
+	get_tree().change_scene_to_file("res://scenes/hub.tscn")
+
+func show_victory_screen() -> void:
+	GameManager.game_state = "victory"
 	
-	for child in $CanvasLayer.get_children():
-		if child.name == "DeathScreen":
-			child.queue_free()
+	var victory_screen = Control.new()
+	victory_screen.name = "VictoryScreen"
+	victory_screen.set_anchors_preset(Control.PRESET_FULL_RECT)
 	
-	player_node.position = Vector2(TILE_SIZE * 3.5, TILE_SIZE * 5)
-	current_room_index += 1
-	_generate_room()
+	var bg = ColorRect.new()
+	bg.color = Color(0.02, 0.02, 0.02, 0.95)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	victory_screen.add_child(bg)
+	
+	var title = Label.new()
+	title.text = "GARDIEN VAINCU"
+	title.add_theme_font_size_override("font_size", 36)
+	title.set_anchors_preset(Control.PRESET_CENTER)
+	title.position = Vector2(-150, -150)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.modulate = Color(0.8, 0.2, 0.2)
+	victory_screen.add_child(title)
+	
+	var subtitle = Label.new()
+	subtitle.text = "Un gardien de moins. Quatre régions restent sous l'emprise de Devil.\nLa route est longue — mais la magie, elle, ne faiblit pas."
+	subtitle.add_theme_font_size_override("font_size", 18)
+	subtitle.set_anchors_preset(Control.PRESET_CENTER)
+	subtitle.position = Vector2(-250, -80)
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	victory_screen.add_child(subtitle)
+	
+	var stats = Label.new()
+	stats.text = "Temps joué: %d min | Salles: %d | Éclats: %d" % [
+		Time.get_ticks_msec() / 60000,
+		current_room_index + 1,
+		GameManager.shards
+	]
+	stats.set_anchors_preset(Control.PRESET_CENTER)
+	stats.position = Vector2(-120, 20)
+	victory_screen.add_child(stats)
+	
+	var continue_btn = Button.new()
+	continue_btn.text = "Continuer"
+	continue_btn.set_anchors_preset(Control.PRESET_CENTER)
+	continue_btn.position = Vector2(-60, 100)
+	continue_btn.size = Vector2(120, 40)
+	continue_btn.pressed.connect(_go_to_hub)
+	victory_screen.add_child(continue_btn)
+	
+	$CanvasLayer.add_child(victory_screen)
+
+func _go_to_hub() -> void:
+	get_tree().change_scene_to_file("res://scenes/hub.tscn")
+
+func _spawn_boss() -> void:
+	var boss = preload("res://scripts/enemies/boss_guardian.gd").new()
+	boss.name = "Gardien des Cendres"
+	boss.position = Vector2(TILE_SIZE * 4, TILE_SIZE * 4)
+	add_child(boss)
+
+func _generate_boss_room() -> void:
+	for x in range(MAP_WIDTH):
+		for y in range(MAP_HEIGHT):
+			var tile_type = 2
+			tile_map.set_cell(0, Vector2i(x, y), 0, Vector2i(tile_type, 0))
+	_spawn_boss()
+
+func _use_portal() -> void:
+	GameManager.save_game()
+	get_tree().change_scene_to_file("res://scenes/hub.tscn")
