@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-var visible: bool = false
+var is_inventory_visible: bool = false
 var inventory_ui: Control
 
 var inventory_size: int = 24
@@ -17,8 +17,8 @@ func _input(event: InputEvent) -> void:
 		toggle_inventory()
 
 func toggle_inventory() -> void:
-	visible = !visible
-	if visible:
+	is_inventory_visible = !is_inventory_visible
+	if is_inventory_visible:
 		show_inventory()
 	else:
 		hide_inventory()
@@ -168,11 +168,11 @@ func remove_item(index: int) -> Item:
 	return item
 
 func refresh() -> void:
-	if visible:
+	if is_inventory_visible:
 		show_inventory()
 
 func hide_inventory() -> void:
 	if inventory_ui:
 		inventory_ui.queue_free()
 		inventory_ui = null
-	visible = false
+	is_inventory_visible = false

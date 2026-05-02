@@ -7,6 +7,7 @@ var rng: RandomNumberGenerator
 
 var current_room_index: int = 0
 var room_level: int = 4
+var time_played_seconds: float = 0.0
 
 @onready var tile_map: TileMap = $TileMap
 @onready var health_bar: ProgressBar = $CanvasLayer/HUD/HealthBar
@@ -18,8 +19,6 @@ var room_level: int = 4
 @onready var room_label: Label = $CanvasLayer/HUD/RoomLabel
 @onready var xp_bar: ProgressBar = $CanvasLayer/HUD/XpBar
 @onready var player_node: CharacterBody2D = $Player
-@onready var skill_ui: CanvasLayer = $SkillUI
-
 @onready var skill_ui: CanvasLayer = $SkillUI
 
 func _ready() -> void:
@@ -281,7 +280,7 @@ func show_victory_screen() -> void:
 	
 	var stats = Label.new()
 	stats.text = "Temps joué: %d min | Salles: %d | Éclats: %d" % [
-		Time.get_ticks_msec() / 60000,
+		int(time_played_seconds / 60),
 		current_room_index + 1,
 		GameManager.shards
 	]
