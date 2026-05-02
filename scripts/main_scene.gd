@@ -16,12 +16,17 @@ var room_level: int = 4
 @onready var level_label: Label = $CanvasLayer/HUD/LevelLabel
 @onready var shards_label: Label = $CanvasLayer/HUD/ShardsLabel
 @onready var room_label: Label = $CanvasLayer/HUD/RoomLabel
+@onready var xp_bar: ProgressBar = $CanvasLayer/HUD/XpBar
 @onready var player_node: CharacterBody2D = $Player
+@onready var skill_ui: CanvasLayer = $SkillUI
+
+@onready var skill_ui: CanvasLayer = $SkillUI
 
 func _ready() -> void:
 	rng = RandomNumberGenerator.new()
 	rng.randomize()
 	
+	GameManager._check_skill_unlocks()
 	GameManager.game_state = "playing"
 	_configure_tile_map()
 	_generate_room()
@@ -49,6 +54,8 @@ func _input(event: InputEvent) -> void:
 			KEY_R: _cast_spell(3)
 			KEY_F: _use_potion(0)
 			KEY_G: _use_potion(1)
+			KEY_K: skill_ui.call("toggle_skill_ui")
+			KEY_I: pass
 
 func _configure_tile_map() -> void:
 	tile_map.tile_size = Vector2i(int(TILE_SIZE), int(TILE_SIZE))
@@ -112,13 +119,16 @@ func _spawn_enemies() -> void:
 func update_hud() -> void:
 	var health_percent = GameManager.get_health_percent()
 	var mana_percent = GameManager.get_mana_percent()
+	var xp_percent = GameManager.get_xp_percent()
 	
 	health_bar.value = health_percent
 	mana_bar.value = mana_percent
+	if xp_bar:
+		xp_bar.value = xp_percent
 	
 	health_label.text = "Santé: %d/%d" % [GameManager.player_stats["health"], GameManager.player_stats["health_max"]]
 	mana_label.text = "Mana: %d/%d" % [GameManager.player_stats["mana"], GameManager.player_stats["mana_max"]]
-	level_label.text = "Nv. %d" % GameManager.player_stats["level"]
+	level_label.text = "Nv. %d" % GameManager.player_stats["level"]]
 	shards_label.text = "Éclats: %d" % GameManager.shards
 	room_label.text = "Salle: %d" % (current_room_index + 1)
 

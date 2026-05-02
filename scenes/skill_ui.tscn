@@ -1,0 +1,6 @@
+[gd_scene load_type=RESOURCE type="Scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/skill_ui.gd" id="1"]
+
+[node name="SkillUI" type="CanvasLayer"]
+script = ExtResource("1")
